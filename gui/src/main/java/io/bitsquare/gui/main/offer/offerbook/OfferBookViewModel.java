@@ -93,6 +93,8 @@ class OfferBookViewModel extends ActivatableViewModel {
 
     PaymentMethod selectedPaymentMethod = new PaymentMethod(GUIUtil.SHOW_ALL_FLAG, 0, 0, null);
 
+    boolean showAssets;
+
     private final ObservableList<OfferBookListItem> offerBookListItems;
     private boolean isTabSelected;
     final BooleanProperty showAllTradeCurrenciesProperty = new SimpleBooleanProperty(true);
@@ -203,6 +205,11 @@ class OfferBookViewModel extends ActivatableViewModel {
         if (!showAllPaymentMethods)
             this.selectedPaymentMethod = paymentMethod;
 
+        applyFilterPredicate();
+    }
+
+    public void onSetShowAssets(boolean showAssets) {
+        this.showAssets = showAssets;
         applyFilterPredicate();
     }
 
@@ -440,7 +447,9 @@ class OfferBookViewModel extends ActivatableViewModel {
             boolean paymentMethodResult = showAllPaymentMethods ||
                     offer.getPaymentMethod().equals(selectedPaymentMethod);
             boolean notMyOfferOrShowMyOffersActivated = !isMyOffer(offerBookListItem.getOffer()) || preferences.getShowOwnOffersInOfferBook();
-            return directionResult && currencyResult && paymentMethodResult && notMyOfferOrShowMyOffersActivated;
+            boolean showAssetResult = showAssets ||
+                    !CurrencyUtil.getTradeCurrency(offer.getCurrencyCode()).get().isAsset();
+            return directionResult && currencyResult && paymentMethodResult && notMyOfferOrShowMyOffersActivated && showAssetResult;
         });
     }
 

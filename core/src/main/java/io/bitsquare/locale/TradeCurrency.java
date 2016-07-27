@@ -58,6 +58,10 @@ public abstract class TradeCurrency implements Persistable, Comparable<TradeCurr
         return symbol;
     }
 
+    public boolean isAsset() {
+        return false;
+    }
+
     public String getNameAndCode() {
         return name + " (" + code + ")";
     }

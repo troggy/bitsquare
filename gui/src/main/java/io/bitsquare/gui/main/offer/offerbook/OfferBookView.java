@@ -79,6 +79,7 @@ public class OfferBookView extends ActivatableViewAndModel<GridPane, OfferBookVi
 
     private ComboBox<CurrencyListItem> currencyComboBox;
     private ComboBox<PaymentMethod> paymentMethodComboBox;
+    private CheckBox showAssetsCheckBox;
     private Button createOfferButton;
     private TableColumn<OfferBookListItem, OfferBookListItem> amountColumn, volumeColumn, marketColumn, priceColumn, paymentMethodColumn, avatarColumn;
     private TableView<OfferBookListItem> tableView;
@@ -137,6 +138,9 @@ public class OfferBookView extends ActivatableViewAndModel<GridPane, OfferBookVi
                 return null;
             }
         });
+
+        showAssetsCheckBox = addLabelCheckBox(root, ++gridRow, "Show assets:").second;
+        showAssetsCheckBox.setSelected(false);
 
         tableView = new TableView<>();
 
@@ -229,6 +233,8 @@ public class OfferBookView extends ActivatableViewAndModel<GridPane, OfferBookVi
         else
             paymentMethodComboBox.getSelectionModel().select(model.selectedPaymentMethod);
 
+        showAssetsCheckBox.setOnAction(e -> model.onSetShowAssets(showAssetsCheckBox.isSelected()));
+
         createOfferButton.setOnAction(e -> onCreateOffer());
 
         currencySelectionBinding = EasyBind.combine(
@@ -268,6 +274,7 @@ public class OfferBookView extends ActivatableViewAndModel<GridPane, OfferBookVi
     protected void deactivate() {
         currencyComboBox.setOnAction(null);
         paymentMethodComboBox.setOnAction(null);
+        showAssetsCheckBox.setOnAction(null);
         createOfferButton.setOnAction(null);
         model.getOfferList().comparatorProperty().unbind();
 
