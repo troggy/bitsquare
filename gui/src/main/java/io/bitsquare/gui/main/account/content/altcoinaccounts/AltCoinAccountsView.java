@@ -35,6 +35,7 @@ import io.bitsquare.gui.util.ImageUtil;
 import io.bitsquare.gui.util.Layout;
 import io.bitsquare.gui.util.validation.*;
 import io.bitsquare.locale.CryptoCurrency;
+import io.bitsquare.locale.CurrencyService;
 import io.bitsquare.locale.TradeCurrency;
 import io.bitsquare.payment.PaymentAccount;
 import io.bitsquare.payment.PaymentAccountFactory;
@@ -70,6 +71,7 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
     private final AltCoinAddressValidator altCoinAddressValidator;
     private final ColoredCoinAssetIdValidator coloredCoinAssetIdValidator;
     private final ColoredCoinsService coloredCoinsService;
+    private final CurrencyService currencyService;
     private BSFormatter formatter;
 
     private PaymentMethodForm paymentMethodForm;
@@ -91,7 +93,8 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
                                AltCoinAddressValidator altCoinAddressValidator,
                                BSFormatter formatter,
                                ColoredCoinAssetIdValidator coloredCoinAssetIdValidator,
-                               ColoredCoinsService coloredCoinsService) {
+                               ColoredCoinsService coloredCoinsService,
+                               CurrencyService currencyService) {
         super(model);
 
         this.ibanValidator = ibanValidator;
@@ -105,6 +108,7 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
         this.formatter = formatter;
         this.coloredCoinAssetIdValidator = coloredCoinAssetIdValidator;
         this.coloredCoinsService = coloredCoinsService;
+        this.currencyService = currencyService;
     }
 
     @Override
@@ -330,7 +334,7 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
     }
 
     private PaymentMethodForm getPaymentMethodForm(PaymentAccount paymentAccount) {
-        return new CryptoCurrencyForm(paymentAccount, altCoinAddressValidator, inputValidator, root, gridRow, formatter);
+        return new CryptoCurrencyForm(paymentAccount, altCoinAddressValidator, inputValidator, root, gridRow, formatter, currencyService);
     }
 
     private void removeNewAccountForm() {

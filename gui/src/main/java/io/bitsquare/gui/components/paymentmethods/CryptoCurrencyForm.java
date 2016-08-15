@@ -24,6 +24,7 @@ import io.bitsquare.gui.util.Layout;
 import io.bitsquare.gui.util.validation.AltCoinAddressValidator;
 import io.bitsquare.gui.util.validation.InputValidator;
 import io.bitsquare.locale.BSResources;
+import io.bitsquare.locale.CurrencyService;
 import io.bitsquare.locale.CurrencyUtil;
 import io.bitsquare.locale.TradeCurrency;
 import io.bitsquare.payment.CryptoCurrencyAccount;
@@ -53,6 +54,7 @@ public class CryptoCurrencyForm extends PaymentMethodForm {
 
     private ComboBox<TradeCurrency> currencyComboBox;
     private Label addressLabel;
+    private final CurrencyService currencyService;
 
     public static int addFormForBuyer(GridPane gridPane, int gridRow, PaymentAccountContractData paymentAccountContractData, String labelTitle) {
         addLabelTextFieldWithCopyIcon(gridPane, ++gridRow, labelTitle, ((CryptoCurrencyAccountContractData) paymentAccountContractData).getAddress());
@@ -60,10 +62,11 @@ public class CryptoCurrencyForm extends PaymentMethodForm {
     }
 
     public CryptoCurrencyForm(PaymentAccount paymentAccount, AltCoinAddressValidator altCoinAddressValidator, InputValidator inputValidator, GridPane gridPane,
-                              int gridRow, BSFormatter formatter) {
+                              int gridRow, BSFormatter formatter, CurrencyService currencyService) {
         super(paymentAccount, inputValidator, gridPane, gridRow, formatter);
         this.cryptoCurrencyAccount = (CryptoCurrencyAccount) paymentAccount;
         this.altCoinAddressValidator = altCoinAddressValidator;
+        this.currencyService = currencyService;
     }
 
     @Override
@@ -125,8 +128,10 @@ public class CryptoCurrencyForm extends PaymentMethodForm {
     }
 
     public void updateCurrencyComboBoxValues() {
-        currencyComboBox.setItems(FXCollections.observableArrayList(CurrencyUtil.getAllSortedCryptoCurrencies()));
-        currencyComboBox.setVisibleRowCount(Math.min(currencyComboBox.getItems().size(), 15));
+        if (currencyComboBox != null) {
+            currencyComboBox.setItems(FXCollections.observableArrayList(CurrencyUtil.getAllSortedCryptoCurrencies()));
+            currencyComboBox.setVisibleRowCount(Math.min(currencyComboBox.getItems().size(), 15));        
+        }
     }
 
     @Override

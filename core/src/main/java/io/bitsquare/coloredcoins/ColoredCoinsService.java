@@ -17,19 +17,22 @@
 
 package io.bitsquare.coloredcoins;
 
+import com.google.inject.name.Named;
 import io.bitsquare.coloredcoins.providers.ColoredCoinMetadata;
 import io.bitsquare.coloredcoins.providers.ColoredCoinsDataProvider;
 import io.bitsquare.common.crypto.KeyRing;
 import io.bitsquare.http.HttpException;
-import io.bitsquare.locale.CurrencyUtil;
 import io.bitsquare.p2p.P2PService;
 import io.bitsquare.p2p.storage.HashMapChangedListener;
 import io.bitsquare.p2p.storage.storageentry.ProtectedStorageEntry;
+import io.bitsquare.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -42,25 +45,42 @@ public class ColoredCoinsService {
     private final KeyRing keyRing;
     private final ColoredCoinsDataProvider coloredCoinsDataProvider;
     private final Set<NewColoredCoinAddedListener> listeners = new CopyOnWriteArraySet<>();
+    private final Storage<HashSet<ColoredCoinCurrency>> dbStorage;
+
+    private final HashSet<ColoredCoinCurrency> coloredCoinCurrencies = new HashSet<>();
+
 
     @Inject
-    public ColoredCoinsService(P2PService p2PService, KeyRing keyRing, ColoredCoinsDataProvider coloredCoinsDataProvider) {
+    public ColoredCoinsService(
+            P2PService p2PService,
+            KeyRing keyRing,
+            ColoredCoinsDataProvider coloredCoinsDataProvider,
+            @Named(Storage.DIR_KEY) File storageDir) {
         this.keyRing = keyRing;
         this.p2PService = p2PService;
         this.coloredCoinsDataProvider = coloredCoinsDataProvider;
+
+        dbStorage = new Storage<>(storageDir);
+        HashSet<ColoredCoinCurrency> persistedColoredCoinCurrencies = dbStorage.initAndGetPersistedWithFileName("ColoredCoinCurrencies");
+        if (persistedColoredCoinCurrencies != null) {
+            log.info("We have persisted colored coin currencies. coloredCoinCurrencies.size()=" + persistedColoredCoinCurrencies.size());
+            this.coloredCoinCurrencies.addAll(persistedColoredCoinCurrencies);
+        }
 
         p2PService.addHashSetChangedListener(new HashMapChangedListener() {
             @Override
             public void onAdded(ProtectedStorageEntry data) {
                 if (data.getStoragePayload() instanceof ColoredCoinCurrency) {
                     ColoredCoinCurrency coloredCoinCurrency = (ColoredCoinCurrency) data.getStoragePayload();
-                    System.out.println("Adding");
                     log.debug("Colored coin added message: " + coloredCoinCurrency);
-                    if (!CurrencyUtil.getColoredCoinsCryptoCurrencies().contains(coloredCoinCurrency))
-                        CurrencyUtil.addColoredCoinCryptoCurrency(coloredCoinCurrency);
+                    if (!coloredCoinCurrencies.contains(coloredCoinCurrency)) {
+                        coloredCoinCurrencies.add(coloredCoinCurrency);
+                        dbStorage.queueUpForSave(coloredCoinCurrencies, 2000);
+
                         listeners.stream().forEach(
                                 e -> e.onNewColoredCoinAdded(coloredCoinCurrency)
                         );
+                    }
                 }
             }
 
@@ -83,21 +103,30 @@ public class ColoredCoinsService {
         }
     }
 
+    public Set<ColoredCoinCurrency> getColoredCoinCurrencies() {
+        return coloredCoinCurrencies;
+    }
+
     public void addOnNewColoredCoinListener(NewColoredCoinAddedListener listener) {
         listeners.add(listener);
     }
 
     public void addColoredCoin(ColoredCoinMetadata coloredCoinMetadata, String currencyCode) {
-        ColoredCoinCurrency coloredCoin = new ColoredCoinCurrency(
+        ColoredCoinCurrency coloredCoinCurrency = new ColoredCoinCurrency(
                 currencyCode + "-CC",
                 coloredCoinMetadata.getName(),
                 keyRing.getPubKeyRing());
 
-        boolean result = p2PService.addData(coloredCoin, true);
+        if (coloredCoinCurrencies.contains(coloredCoinCurrency)) {
+            log.warn("Colored coin currency already exists: " + coloredCoinCurrency);
+            return;
+        }
+
+        boolean result = p2PService.addData(coloredCoinCurrency, true);
         if (result) {
-            log.trace("Add colored coins success. Colored coin: " + coloredCoin);
+            log.trace("Add colored coins success. Colored coin: " + coloredCoinCurrency);
             listeners.stream().forEach(
-                    e -> e.onNewColoredCoinAdded(coloredCoin)
+                    e -> e.onNewColoredCoinAdded(coloredCoinCurrency)
             );
         } else {
             log.error("Failed to add colored coin");

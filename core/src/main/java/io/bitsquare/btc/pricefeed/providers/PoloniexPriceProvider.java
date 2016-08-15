@@ -7,7 +7,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import io.bitsquare.btc.pricefeed.MarketPrice;
 import io.bitsquare.http.HttpClient;
 import io.bitsquare.http.HttpException;
-import io.bitsquare.locale.CurrencyUtil;
+import io.bitsquare.locale.CurrencyService;
 import io.bitsquare.locale.TradeCurrency;
 import io.bitsquare.network.Socks5ProxyProvider;
 import io.bitsquare.user.Preferences;
@@ -24,12 +24,16 @@ import java.util.stream.Collectors;
 public class PoloniexPriceProvider extends PriceProvider {
     private static final Logger log = LoggerFactory.getLogger(PoloniexPriceProvider.class);
 
+    private final CurrencyService currencyService;
+
     @Inject
-    public PoloniexPriceProvider(HttpClient httpClient, Preferences preferences, Socks5ProxyProvider socks5ProxyProvider) {
+    public PoloniexPriceProvider(HttpClient httpClient, Preferences preferences, Socks5ProxyProvider socks5ProxyProvider, CurrencyService currencyService) {
         // Poloniex uses Cloudflare which requires a captcha if they get connected from a Tor exit node.
         // We can't use Tor for Poloniex for that reason and set the ignoreSocks5Proxy flag to true if no 
         // custom socks5ProxyHttp is set.
         super(httpClient, preferences, "https://poloniex.com/public", socks5ProxyProvider.getSocks5ProxyHttp() == null);
+
+        this.currencyService = currencyService;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class PoloniexPriceProvider extends PriceProvider {
         String response = httpClient.requestWithGET("?command=returnTicker");
         LinkedTreeMap<String, Object> treeMap = new Gson().fromJson(response, LinkedTreeMap.class);
         Map<String, String> temp = new HashMap<>();
-        Set<String> supported = CurrencyUtil.getAllSortedCryptoCurrencies().stream()
+        Set<String> supported = currencyService.getAllSortedCryptoCurrencies().stream()
                 .map(TradeCurrency::getCode)
                 .collect(Collectors.toSet());
         treeMap.entrySet().stream().forEach(e -> {
