@@ -29,6 +29,8 @@ public class CurrencyUtil {
 
     private static final List<FiatCurrency> allSortedFiatCurrencies = createAllSortedFiatCurrenciesList();
 
+    private static final List<CryptoCurrency> coloredCoinsCryptoCurrencies = new ArrayList<>();
+
     private static List<FiatCurrency> createAllSortedFiatCurrenciesList() {
         Set<FiatCurrency> set = CountryUtil.getAllCountries().stream()
                 .map(country -> getCurrencyByCountryCode(country.code))
@@ -68,6 +70,15 @@ public class CurrencyUtil {
 
     public static List<CryptoCurrency> getAllSortedCryptoCurrencies() {
         return allSortedCryptoCurrencies;
+    }
+
+    public static void addColoredCoinCryptoCurrency(CryptoCurrency coloredCoinCurrency) {
+        coloredCoinsCryptoCurrencies.add(coloredCoinCurrency);
+        allSortedCryptoCurrencies.add(coloredCoinCurrency);
+    }
+
+    public static List<CryptoCurrency> getColoredCoinsCryptoCurrencies() {
+        return coloredCoinsCryptoCurrencies;
     }
 
     // Don't make a PR for adding a coin but follow the steps described here: 

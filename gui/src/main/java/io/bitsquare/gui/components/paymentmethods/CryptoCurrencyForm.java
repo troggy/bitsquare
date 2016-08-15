@@ -124,12 +124,16 @@ public class CryptoCurrencyForm extends PaymentMethodForm {
                 && cryptoCurrencyAccount.getSingleTradeCurrency() != null);
     }
 
+    public void updateCurrencyComboBoxValues() {
+        currencyComboBox.setItems(FXCollections.observableArrayList(CurrencyUtil.getAllSortedCryptoCurrencies()));
+        currencyComboBox.setVisibleRowCount(Math.min(currencyComboBox.getItems().size(), 15));
+    }
+
     @Override
     protected void addTradeCurrencyComboBox() {
         currencyComboBox = addLabelSearchComboBox(gridPane, ++gridRow, "Altcoin:", Layout.FIRST_ROW_AND_GROUP_DISTANCE).second;
         currencyComboBox.setPromptText("Select or search altcoin");
-        currencyComboBox.setItems(FXCollections.observableArrayList(CurrencyUtil.getAllSortedCryptoCurrencies()));
-        currencyComboBox.setVisibleRowCount(Math.min(currencyComboBox.getItems().size(), 15));
+        updateCurrencyComboBoxValues();
         currencyComboBox.setConverter(new StringConverter<TradeCurrency>() {
             @Override
             public String toString(TradeCurrency tradeCurrency) {
