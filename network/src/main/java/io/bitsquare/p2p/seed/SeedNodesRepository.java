@@ -36,15 +36,17 @@ public class SeedNodesRepository {
 
             // v0.4.2
             // ...128
-            DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("uadzuib66jupaept.onion:8000"),
-            DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("wgthuiqn3aoiovbm.onion:8000"),
+            new NodeAddress("fkxdioro6knge2pb.onion:8000"), // Seed node hosted by Colu
+            //DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("uadzuib66jupaept.onion:8000"),
+            //DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("wgthuiqn3aoiovbm.onion:8000"),
 
             // ...14
-            DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("hbma455xxbqhcuqh.onion:8000"),
-            DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("2zxtnprnx5wqr7a3.onion:8000"),
+            //DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("hbma455xxbqhcuqh.onion:8000"),
+            //DevFlags.STRESS_TEST_MODE ? new NodeAddress("hlitt7z4bec4kdh4.onion:8000") : new NodeAddress("2zxtnprnx5wqr7a3.onion:8000"),
 
             // testnet
-            new NodeAddress("znmy44wcstn2rkva.onion:8001"),
+            new NodeAddress("o5yhcjmavqcqhhhs.onion:8001"), // Seed node hosted by Colu
+            //new NodeAddress("znmy44wcstn2rkva.onion:8001"),
 
             // regtest
             // For development you need to change that to your local onion addresses
