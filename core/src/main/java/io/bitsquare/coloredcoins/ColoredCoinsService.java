@@ -122,14 +122,16 @@ public class ColoredCoinsService {
             return;
         }
 
-        boolean result = p2PService.addData(coloredCoinCurrency, true);
-        if (result) {
-            log.trace("Add colored coins success. Colored coin: " + coloredCoinCurrency);
-            listeners.stream().forEach(
-                    e -> e.onNewColoredCoinAdded(coloredCoinCurrency)
-            );
-        } else {
-            log.error("Failed to add colored coin");
+        if (p2PService.isBootstrapped()) {
+            boolean result = p2PService.addData(coloredCoinCurrency, true);
+            if (result) {
+                log.trace("Add colored coins success. Colored coin: " + coloredCoinCurrency);
+                listeners.stream().forEach(
+                        e -> e.onNewColoredCoinAdded(coloredCoinCurrency)
+                );
+            } else {
+                log.error("Failed to add colored coin");
+            }
         }
     }
 
