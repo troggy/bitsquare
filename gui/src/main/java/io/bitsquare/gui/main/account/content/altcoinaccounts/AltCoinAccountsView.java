@@ -19,6 +19,7 @@ package io.bitsquare.gui.main.account.content.altcoinaccounts;
 
 import io.bitsquare.coloredcoins.ColoredCoinsService;
 import io.bitsquare.coloredcoins.NewColoredCoinAddedListener;
+import io.bitsquare.coloredcoins.providers.ColoredCoinMetadata;
 import io.bitsquare.common.UserThread;
 import io.bitsquare.common.util.Tuple2;
 import io.bitsquare.common.util.Tuple3;
@@ -77,7 +78,7 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
     private PaymentMethodForm paymentMethodForm;
     private NewColoredCoinForm newColoredCoinForm;
     private TitledGroupBg accountTitledGroupBg;
-    private Button addAccountButton, saveNewAccountButton, exportButton, importButton;
+    private Button addAccountButton, saveNewAccountButton, exportButton, importButton, addColoredCoinButton;
     private int gridRow = 0;
     private ChangeListener<PaymentAccount> paymentAccountChangeListener;
 
@@ -285,12 +286,26 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
             saveNewAccountButton.disableProperty().bind(paymentMethodForm.allInputsValidProperty().not());
             Button cancelButton = tuple3.second;
             cancelButton.setOnAction(event -> onCancelNewAccount());
-            Button addColoredCoinButton = tuple3.third;
+            addColoredCoinButton = tuple3.third;
             addColoredCoinButton.setOnAction(event -> {
                 if (newColoredCoinForm == null) {
+                    addColoredCoinButton.setDisable(true);
                     newColoredCoinForm = new NewColoredCoinForm(coloredCoinsService, coloredCoinAssetIdValidator, root, gridRow);
                     newColoredCoinForm.init();
                     gridRow = newColoredCoinForm.getGridRow();
+                    Tuple2<Button, Button> tuple = add2ButtonsAfterGroup(root, ++gridRow, "Add new colored coin", "Cancel");
+                    Button saveColoredCoinButton = tuple.first;
+
+                    tuple.second.setOnAction(event1 -> removeNewColoredCoinForm());
+
+                    saveColoredCoinButton.setOnAction(e -> {
+                        ColoredCoinMetadata metadata = newColoredCoinForm.getMetadata();
+                        if (metadata != null) {
+                            coloredCoinsService.addColoredCoin(metadata, newColoredCoinForm.getCurrencyCode());
+                        } else {
+                            new Popup().error("Failed to get metadata for given asset.").show();
+                        }
+                    });
                 }
             });
 
@@ -339,9 +354,16 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
 
     private void removeNewAccountForm() {
         saveNewAccountButton.disableProperty().unbind();
+        removeNewColoredCoinForm();
         removeAccountRows();
-        newColoredCoinForm = null;
         addAccountButton.setDisable(false);
+    }
+
+    private void removeNewColoredCoinForm() {
+        FormBuilder.removeRowsFromGridPane(root, 8, gridRow);
+        newColoredCoinForm = null;
+        gridRow = 7;
+        addColoredCoinButton.setDisable(false);
     }
 
     private void removeSelectAccountForm() {

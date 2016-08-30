@@ -17,16 +17,14 @@
 
 package io.bitsquare.gui.components.paymentmethods;
 
-import io.bitsquare.coloredcoins.ColoredCoinException;
 import io.bitsquare.coloredcoins.ColoredCoinsService;
+import io.bitsquare.coloredcoins.providers.ColoredCoinMetadata;
 import io.bitsquare.gui.components.InputTextField;
 import io.bitsquare.gui.util.validation.ColoredCoinAssetIdValidator;
-import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.bitsquare.gui.util.FormBuilder.addButton;
 import static io.bitsquare.gui.util.FormBuilder.addLabelInputTextField;
 
 public class NewColoredCoinForm {
@@ -39,8 +37,9 @@ public class NewColoredCoinForm {
     protected int gridRowFrom;
     private InputTextField assetIdTextField;
     private InputTextField currencyCodeTextField;
-    private Button addColoredCoinButton;
     private final ColoredCoinAssetIdValidator coloredCoinAssetIdValidator;
+
+    private ColoredCoinMetadata metadata;
 
     public NewColoredCoinForm(ColoredCoinsService coloredCoinsService, ColoredCoinAssetIdValidator coloredCoinAssetIdValidator, GridPane gridPane, int gridRow) {
         this.coloredCoinsService = coloredCoinsService;
@@ -53,18 +52,6 @@ public class NewColoredCoinForm {
         gridRowFrom = gridRow + 1;
         assetIdTextField = addLabelInputTextField(gridPane, ++gridRow, "Asset id:").second;
         currencyCodeTextField = addLabelInputTextField(gridPane, ++gridRow, "Currency code:").second;
-
-        addColoredCoinButton = addButton(gridPane, ++gridRow, "Add new colored coin");
-
-        addColoredCoinButton.setOnAction(e -> {
-            if (coloredCoinAssetIdValidator.validate(assetIdTextField.getText()).isValid) {
-                try {
-                    coloredCoinsService.addColoredCoin(assetIdTextField.getText(), currencyCodeTextField.getText());
-                } catch (ColoredCoinException e1) {
-                    log.error("Failed to add colored coin", e1);
-                }
-            }
-        });
     }
 
     public int getGridRow() {
@@ -73,5 +60,20 @@ public class NewColoredCoinForm {
 
     public int getRowSpan() {
         return gridRow - gridRowFrom + 1;
+    }
+
+    public ColoredCoinMetadata getMetadata() {
+        if (metadata == null) {
+            if (coloredCoinAssetIdValidator.validate(assetIdTextField.getText()).isValid) {
+                metadata = coloredCoinAssetIdValidator.getColoredCoinMetadata();
+            } else {
+                metadata = null;
+            }
+        }
+        return metadata;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCodeTextField.getText();
     }
 }
