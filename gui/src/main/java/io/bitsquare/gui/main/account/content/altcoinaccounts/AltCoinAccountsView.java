@@ -302,6 +302,7 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
                         ColoredCoinMetadata metadata = newColoredCoinForm.getMetadata();
                         if (metadata != null) {
                             coloredCoinsService.addColoredCoin(metadata, newColoredCoinForm.getCurrencyCode());
+                            removeNewColoredCoinForm();
                         } else {
                             new Popup().error("Failed to get metadata for given asset.").show();
                         }
