@@ -295,16 +295,20 @@ public class AltCoinAccountsView extends ActivatableViewAndModel<GridPane, AltCo
                     gridRow = newColoredCoinForm.getGridRow();
                     Tuple2<Button, Button> tuple = add2ButtonsAfterGroup(root, ++gridRow, "Add new colored coin", "Cancel");
                     Button saveColoredCoinButton = tuple.first;
-
-                    tuple.second.setOnAction(event1 -> removeNewColoredCoinForm());
+                    Button coloredCoinCancelButton = tuple.second;
+                    coloredCoinCancelButton.setOnAction(event1 -> removeNewColoredCoinForm());
 
                     saveColoredCoinButton.setOnAction(e -> {
+                        saveColoredCoinButton.setDisable(true);
+                        coloredCoinCancelButton.setDisable(true);
                         ColoredCoinMetadata metadata = newColoredCoinForm.getMetadata();
                         if (metadata != null) {
                             coloredCoinsService.addColoredCoin(metadata, newColoredCoinForm.getCurrencyCode());
                             removeNewColoredCoinForm();
                         } else {
                             new Popup().error("Failed to get metadata for given asset.").show();
+                            saveColoredCoinButton.setDisable(false);
+                            coloredCoinCancelButton.setDisable(false);
                         }
                     });
                 }
