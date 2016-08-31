@@ -17,6 +17,8 @@
 
 package io.bitsquare.locale;
 
+import com.google.inject.Inject;
+import io.bitsquare.coloredcoins.ColoredCoinsService;
 import io.bitsquare.user.Preferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,13 @@ public class CurrencyUtil {
     private static final Logger log = LoggerFactory.getLogger(CurrencyUtil.class);
 
     private static final List<FiatCurrency> allSortedFiatCurrencies = createAllSortedFiatCurrenciesList();
+
+    private static ColoredCoinsService coloredCoinsService;
+
+    @Inject
+    public CurrencyUtil(ColoredCoinsService coloredCoinsService) {
+        CurrencyUtil.coloredCoinsService = coloredCoinsService;
+    }
 
     private static List<FiatCurrency> createAllSortedFiatCurrenciesList() {
         Set<FiatCurrency> set = CountryUtil.getAllCountries().stream()
@@ -67,7 +76,9 @@ public class CurrencyUtil {
     private static final List<CryptoCurrency> allSortedCryptoCurrencies = createAllSortedCryptoCurrenciesList();
 
     public static List<CryptoCurrency> getAllSortedCryptoCurrencies() {
-        return allSortedCryptoCurrencies;
+        List<CryptoCurrency> cryptoCurrencies = new ArrayList<>(allSortedCryptoCurrencies);
+        cryptoCurrencies.addAll(coloredCoinsService.getColoredCoinCurrencies());
+        return cryptoCurrencies;
     }
 
     // Don't make a PR for adding a coin but follow the steps described here:

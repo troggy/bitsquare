@@ -91,7 +91,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Activatab
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Inject
-    public PreferencesView(Preferences preferences, BSFormatter formatter, CurrencyService currencyService) {
+    public PreferencesView(Preferences preferences, BSFormatter formatter) {
         super();
         this.preferences = preferences;
         this.formatter = formatter;
@@ -103,7 +103,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Activatab
         tradeCurrencies = preferences.getTradeCurrenciesAsObservable();
 
         allFiatCurrencies = FXCollections.observableArrayList(CurrencyUtil.getAllSortedFiatCurrencies());
-        allCryptoCurrencies = FXCollections.observableArrayList(currencyService.getAllSortedCryptoCurrencies());
+        allCryptoCurrencies = FXCollections.observableArrayList(CurrencyUtil.getAllSortedCryptoCurrencies());
 
         allFiatCurrencies.removeAll(fiatCurrencies);
         allCryptoCurrencies.removeAll(cryptoCurrencies);

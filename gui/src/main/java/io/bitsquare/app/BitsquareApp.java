@@ -44,6 +44,7 @@ import io.bitsquare.gui.main.overlays.windows.EmptyWalletWindow;
 import io.bitsquare.gui.main.overlays.windows.FilterWindow;
 import io.bitsquare.gui.main.overlays.windows.SendAlertMessageWindow;
 import io.bitsquare.gui.util.ImageUtil;
+import io.bitsquare.locale.CurrencyUtil;
 import io.bitsquare.p2p.P2PService;
 import io.bitsquare.storage.Storage;
 import io.bitsquare.trade.TradeManager;
@@ -149,6 +150,8 @@ public class BitsquareApp extends Application {
             injector.getInstance(InjectorViewFactory.class).setInjector(injector);
 
             Version.setBtcNetworkId(injector.getInstance(BitsquareEnvironment.class).getBitcoinNetwork().ordinal());
+
+            injector.getInstance(CurrencyUtil.class);
 
             if (Utilities.isLinux())
                 System.setProperty("prism.lcdtext", "false");
